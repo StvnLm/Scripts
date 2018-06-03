@@ -1,0 +1,41 @@
+import os
+
+##TODO: file logging, validation
+
+def scan_dir(path):
+    file_list = {}
+    with os.scandir(path) as dir_scan:
+        for entry in dir_scan:
+            if os.path.isfile(entry.path):
+                file_list[entry.path] = os.path.getsize(entry.path)/1000000
+    return file_list
+
+def clean_up(file_dict):
+    # Get aggregated file sizes; does not account for directories
+    total_file_size = 0
+    for value in file_dict.values():
+        total_file_size += int(value)
+    print('Total size of files (ignoring directories) is', total_file_size, 'MB')
+
+    #Get desired aggregated space for all files in directory
+    desired_allocation = int(input('Enter desired allocated file size in MB: '))
+    user_input = ''
+    while user_input != 'Y':
+        if user_input == 'N':
+            desired_allocation = input('Enter desired allocated file size in MB: ')
+        user_input = input('Desired aggregated file size is ' + str(desired_allocation) + 'MB. Is this correct? Y/N ').upper()
+
+
+    if total_file_size > desired_allocation:
+        while total_file_size > desired_allocation:
+            biggestfile = max(file_dict, key=file_dict.get)
+            total_file_size -= file_dict[biggestfile]
+            os.remove(biggestfile)
+            file_dict.pop(biggestfile)
+
+def main():
+    dir = input('Enter absolute path of directory: ')
+    clean_up(scan_dir(dir))
+
+if __name__ == '__main__':
+    main()
