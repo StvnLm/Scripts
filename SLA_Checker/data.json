@@ -1,0 +1,146 @@
+{
+  "Client1": {
+    "start": 9,
+    "end": 5,
+    "severity_1": 1,
+    "severity_2": 2,
+    "severity_3": 8,
+    "severity_4": 24
+    },
+  "Client2": {
+    "start": 7,
+    "end": 3,
+    "severity_1": 1,
+    "severity_2": 2,
+    "severity_3": 8,
+    "severity_4": 12
+    },
+  "Client3": {
+    "start": 9,
+    "end": 5,
+    "severity_1": 1,
+    "severity_2": 2,
+    "severity_3": 8,
+    "severity_4": 48
+    },
+  "Client4": {
+    "start": 7,
+    "end": 15,
+    "severity_1": 2,
+    "severity_2": 3,
+    "severity_3": 8,
+    "severity_4": 12
+    },
+  "Client5": {
+    "start": 9,
+    "end": 5,
+    "severity_1": 2,
+    "severity_2": 3,
+    "severity_3": 8,
+    "severity_4": 12
+    },
+  "Client6": {
+    "start": 9,
+    "end": 5,
+    "severity_1": 2,
+    "severity_2": 3,
+    "severity_3": 8,
+    "severity_4": 12
+    },
+  "Client7": {
+    "start": 9,
+    "end": 5,
+    "severity_1": 2,
+    "severity_2": 3,
+    "severity_3": 8,
+    "severity_4": 12
+  },
+  "Client8": {
+    "start": 9,
+    "end": 5,
+    "severity_1": 2,
+    "severity_2": 3,
+    "severity_3": 8,
+    "severity_4": 12
+  },
+  "Client9": {
+    "start": 9,
+    "end": 5,
+    "severity_1_min": 15,
+    "severity_2": 1,
+    "severity_3": 8,
+    "severity_4": 12
+  },
+  "Client10": {
+    "start": 9,
+    "end": 5,
+    "severity_1_min": 15,
+    "severity_2": 1,
+    "severity_3_bh": 4,
+    "severity_3_nbh": 8,
+    "severity_4": 12
+  },
+  "Client11": {
+    "start": 9,
+    "end": 5,
+    "severity_1_min": 15,
+    "severity_2": 2,
+    "severity_3": 8
+  },
+  "Client12": {
+    "start": 9,
+    "end": 5,
+    "severity_1_min": 15,
+    "severity_2_min": 30,
+    "severity_3": 8,
+    "severity_4": 12
+  },
+  "Client13": {
+    "start": 9,
+    "end": 5,
+    "severity_1": 2,
+    "severity_2": 3,
+    "severity_3": 8,
+    "severity_4": 12
+  },
+  "Client14": {
+    "start": 9,
+    "end": 5,
+    "severity_1": 2,
+    "severity_2": 2,
+    "severity_3": 8,
+    "severity_4": 12
+  },
+  "Client15": {
+    "start": 9,
+    "end": 5,
+    "severity_1": 1,
+    "severity_2": 3,
+    "severity_3": 8,
+    "severity_4": 12
+  },
+  "Client16": {
+    "start": 9,
+    "end": 5,
+    "severity_1": 1,
+    "severity_2": 3,
+    "severity_3": 8,
+    "severity_4": 12
+  },
+  "Client17": {
+    "start": 9,
+    "end": 5,
+    "severity_1": 1,
+    "severity_2": 3,
+    "severity_3": 8,
+    "severity_4": 12
+  },
+  "Client18": {
+    "start": 9,
+    "end": 5,
+    "severity_1": 1,
+    "severity_2": 3,
+    "severity_3": 8,
+    "severity_4": 12
+  }
+}
