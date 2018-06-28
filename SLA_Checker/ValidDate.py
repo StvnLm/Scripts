@@ -7,9 +7,11 @@ class ValidDate():
     def __init__(self):
         self.self = self
 
+
     def daterange(self, start_date, end_date):
         for n in range((end_date - start_date).days + 1):
             yield start_date + datetime.timedelta(n)
+
 
     def weekendcheck(self, start_date, end_date,):
         counter = 0
@@ -17,6 +19,7 @@ class ValidDate():
             if day.isoweekday() == 6 or day.isoweekday() == 7:
                 counter += 1
         return counter
+
 
     def holidaycheck(self, start_date, end_date, province):
         holidaylist = []
@@ -28,4 +31,5 @@ class ValidDate():
             if province == 'QC' and 'Boxing Day' in holidaylist:
                 holidaylist.remove('Boxing Day')
         return holidaylist
+
 
