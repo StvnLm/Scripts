@@ -2,8 +2,8 @@ __author__ = "Steven Lam"
 __version__ = "1.0.0"
 __status__ = "PRE_PRODUCTION"
 
-import datetime
-from datetime import date
+
+from datetime import date, datetime
 import json
 from ValidDate import *
 '''
@@ -41,40 +41,48 @@ class SLA():
             ticket_end = datetime.date(self.end_year, self.end_month, self.end_day)
 
             # Calculate the # of hours the ticket has been in progress countdown
-            first_day = datetime.datetime(year=self.st_year, month=self.st_month, day=self.st_day, hour=data[self.client]["end"]) \
-                        - datetime.datetime(year=self.st_year, month=self.st_month, day=self.st_day, hour=self.st_hr, minute=self.st_min)
+            first_day = datetime.datetime(self.st_year, self.st_month, self.st_day, data[self.client]["end"]) \
+                        - datetime.datetime(self.st_year, self.st_month, self.st_day, self.st_hr, self.st_min)
             full_days = ((ticket_end - ticket_start).days - 1) * 8
-            last_day = datetime.datetime(year=self.end_year, month=self.end_month, day=self.end_day, hour=self.end_hr, minute=self.end_min) \
-                        - datetime.datetime(year=self.end_year, month=self.end_month, day=self.end_day, hour=data[self.client]["start"])
+            last_day = datetime.datetime(self.end_year, self.end_month, self.end_day, self.end_hr, self.end_min) \
+                        - datetime.datetime(self.end_year, self.end_month, self.end_day, data[self.client]["start"])
             total_ticket_hrs = (first_day.total_seconds()/3600) + full_days + (last_day.total_seconds()/3600)
 
             # Check if day lands on Sat, Sun, or holiday; if so - deduct 8 hrs
-            _ = ValidDate()
-            for day in _.daterange(start_date=ticket_start, end_date=ticket_end):
-                if day.isoweekday() == 6 or day.isoweekday() == 7:
-                    total_ticket_hrs -= 8
-            holiday_list = _.holidaycheck(start_date=ticket_start, end_date=ticket_end, province=data[self.client]["prov"])
-            total_ticket_hrs -= len(holiday_list) * 8
+            weekends = ValidDate().weekendcheck(ticket_start, ticket_end)
+            holiday_list = ValidDate().holidaycheck(start_date=ticket_start, end_date=ticket_end, province=data[self.client]["prov"])
+            total_ticket_hrs -= (weekends + len(holiday_list)) * 8
+        return total_ticket_hrs
 
-        return holiday_list, total_ticket_hrs
 
-    def calculate_sla_breach(self, severity):
-        sev = ''
+    def calculate_sla_breach(self, severity, ticket_hours):
+        ticket_max_time = 0.0
+
         with open('data.json') as f:
+
             data = json.load(f)
-            if (self.client == 'OPT' or self.client == 'ALM' or self.client == 'SDM' or self.client == 'TMX') and severity == 1:
-                sev = 'severity_1_min'
-            elif self.client == 'TMX' and severity == 2:
-                sev = 'severity_2_min'
+            # If the client has minutes instead of hours, add 15 minutes
+            if (self.client == 'OPT' or self.client == 'ALM' or self.client == 'SDM' or self.client == 'TMX') and severity == 'severity_1':
+                ticket_max_time += data[self.client][severity]
+            elif self.client == 'TMX' and severity == 'severity_2':
+                ticket_max_time += data[self.client][severity]
             else:
-                sev = 'severity_' + str(severity)
-            ticket_max_time =  data[self.client][sev]
-        return ticket_max_time
+                ticket_max_time += data[self.client][severity] * 60.0
+
+        ticket_time = SLA(self.client, self.st_year, self.st_month, self.st_day, data[self.client]["start"], self.st_min, self.end_year,
+                          self.end_month, self.end_day, self.end_hr, self.end_min).calculate_ticket_hrs() * 60
+
+        remaining_sla_hrs = (ticket_max_time - ticket_time) / 60
+        return remaining_sla_hrs
 
 
-test = SLA(client="TMX", st_year=2017, st_month=12, st_day=30, st_hr=9, st_min=0,
-                                    end_year=2018, end_month=1, end_day=2, end_hr=17, end_min=0)
-print(test.calculate_ticket_hrs())
-print(test.calculate_sla_breach(2))
+
+
+
+test = SLA(client="BJS", st_year=2017, st_month=12, st_day=2, st_hr=9, st_min=0,
+                         end_year=2017, end_month=12, end_day=4, end_hr=10, end_min=0)
+
+hrs = test.calculate_ticket_hrs()
+print(test.calculate_sla_breach("severity_3", hrs))
 
 
