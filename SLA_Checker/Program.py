@@ -42,19 +42,22 @@ class SLA():
 
             # Calculate the # of hours the ticket has been in progress countdown
             total_ticket_hrs = 0
-            first_day = datetime.datetime(self.st_year, self.st_month, self.st_day, data[self.client]["end"]) \
-                        - datetime.datetime(self.st_year, self.st_month, self.st_day, self.st_hr, self.st_min)
             full_days = ((ticket_end - ticket_start).days - 1) * 8
             if ticket_start == ticket_end:
+                first_day = datetime.datetime(self.end_year, self.end_month, self.end_day, self.end_hr, self.end_min) \
+                            - datetime.datetime(self.st_year, self.st_month, self.st_day, self.st_hr, self.st_min)
                 last_day = 0
                 full_days = 0
-                total_ticket_hrs = (first_day.total_seconds()/3600) + full_days
+                total_ticket_hrs = (first_day.total_seconds()/3600)
+                print('fulldaytriggered')
             else:
+                first_day = datetime.datetime(self.st_year, self.st_month, self.st_day, data[self.client]["end"]) \
+                            - datetime.datetime(self.st_year, self.st_month, self.st_day, self.st_hr, self.st_min)
                 full_days = ((ticket_end - ticket_start).days - 1) * 8
                 last_day = datetime.datetime(self.end_year, self.end_month, self.end_day, self.end_hr, self.end_min) \
                                             - datetime.datetime(self.end_year, self.end_month, self.end_day, data[self.client]["start"])
                 total_ticket_hrs = (first_day.total_seconds()/3600) + full_days + (last_day.total_seconds()/3600)
-                
+
             # Check if day lands on Sat, Sun, or holiday; if so - deduct 8 hrs
             weekends = ValidDate().weekendcheck(ticket_start, ticket_end)
             holiday_list = ValidDate().holidaycheck(start_date=ticket_start, end_date=ticket_end, province=data[self.client]["prov"])
@@ -69,17 +72,23 @@ class SLA():
 
             data = json.load(f)
             # If the client has minutes instead of hours, add 15 minutes
-            if (self.client == 'OPT' or self.client == 'ALM' or self.client == 'SDM' or self.client == 'TMX') and severity == 'severity_1':
-                ticket_max_time = data[self.client]['SEV'][severity]
-            elif self.client == 'TMX' and severity == 'severity_2':
-                ticket_max_time = data[self.client]['SEV'][severity]
-            else:
-                ticket_max_time = data[self.client]['SEV'][severity] * 60.0
+            # if (self.client == 'OPT' or self.client == 'ALM' or self.client == 'SDM' or self.client == 'TMX') and severity == 'severity_1':
+            #     ticket_max_time = data[self.client]['SEV'][severity]
+            # elif self.client == 'TMX' and severity == 'severity_2':
+            #     ticket_max_time = data[self.client]['SEV'][severity]
+            # else:
+            #     print('Ticket max time', ticket_max_time)
+            ticket_max_time = data[self.client]['SEV'][severity]
 
-        ticket_time_minutes = (SLA(self.client, self.st_year, self.st_month, self.st_day, data[self.client]["start"], self.st_min, self.end_year,
-                          self.end_month, self.end_day, self.end_hr, self.end_min).calculate_ticket_hrs()) * 60
+            ticket_time_minutes = (SLA(self.client, self.st_year, self.st_month, self.st_day, self.st_hr, self.st_min,
+                                       self.end_year, self.end_month, self.end_day, self.end_hr, self.end_min).calculate_ticket_hrs())
+            print('ticket max time', ticket_max_time)
+            print('ticket time', ticket_time_minutes)
+            remaining_sla_hrs = (ticket_max_time - ticket_time_minutes)
+            print('remaining sla hrs', remaining_sla_hrs)
+            return remaining_sla_hrs
 
-        remaining_sla_hrs = (ticket_max_time - ticket_time_minutes) / 60
-        return remaining_sla_hrs
 
-
+X = SLA('AC', 2018, 9, 20, 10, 0, 2018, 9, 20, 12, 0)
+Y = X.calculate_ticket_hrs()
+print(X.calculate_sla_breach('severity_3', Y))
