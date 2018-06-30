@@ -49,7 +49,6 @@ class SLA():
                 last_day = 0
                 full_days = 0
                 total_ticket_hrs = (first_day.total_seconds()/3600)
-                print('fulldaytriggered')
             else:
                 first_day = datetime.datetime(self.st_year, self.st_month, self.st_day, data[self.client]["end"]) \
                             - datetime.datetime(self.st_year, self.st_month, self.st_day, self.st_hr, self.st_min)
@@ -65,30 +64,22 @@ class SLA():
         return total_ticket_hrs
 
 
-    def calculate_sla_breach(self, severity, ticket_hours):
-        ticket_max_time = 0.0
-
+    def calculate_sla_breach2(self, severity, ticket_hours):
         with open('data.json') as f:
-
             data = json.load(f)
-            # If the client has minutes instead of hours, add 15 minutes
-            # if (self.client == 'OPT' or self.client == 'ALM' or self.client == 'SDM' or self.client == 'TMX') and severity == 'severity_1':
-            #     ticket_max_time = data[self.client]['SEV'][severity]
-            # elif self.client == 'TMX' and severity == 'severity_2':
-            #     ticket_max_time = data[self.client]['SEV'][severity]
-            # else:
-            #     print('Ticket max time', ticket_max_time)
-            ticket_max_time = data[self.client]['SEV'][severity]
 
-            ticket_time_minutes = (SLA(self.client, self.st_year, self.st_month, self.st_day, self.st_hr, self.st_min,
-                                       self.end_year, self.end_month, self.end_day, self.end_hr, self.end_min).calculate_ticket_hrs())
-            print('ticket max time', ticket_max_time)
-            print('ticket time', ticket_time_minutes)
-            remaining_sla_hrs = (ticket_max_time - ticket_time_minutes)
-            print('remaining sla hrs', remaining_sla_hrs)
+            ticket_max_time = data[self.client]['SEV'][severity]
+            if ('1' or '2') in severity:
+                ticket_time = (SLA(self.client, self.st_year, self.st_month, self.st_day, self.st_hr, self.st_min,
+                   self.end_year, self.end_month, self.end_day, self.end_hr, self.end_min).calculate_ticket_hrs())
+            else:
+                ticket_time = (SLA(self.client, self.st_year, self.st_month, self.st_day, data[self.client]["start"], self.st_min,
+                                   self.end_year, self.end_month, self.end_day, self.end_hr, self.end_min).calculate_ticket_hrs())
+
+            remaining_sla_hrs = (ticket_max_time - ticket_time)
             return remaining_sla_hrs
 
 
-X = SLA('AC', 2018, 9, 20, 10, 0, 2018, 9, 20, 12, 0)
+X = SLA('OPT', 2018, 9, 20, 17, 0, 2018, 9, 20, 17, 15)
 Y = X.calculate_ticket_hrs()
-print(X.calculate_sla_breach('severity_3', Y))
+print(X.calculate_sla_breach2('severity 1', Y))
