@@ -69,8 +69,8 @@ class Interface(QWidget):
         msg.setIcon(QMessageBox.Information)
         msg.setText(sla_check)
         msg.setWindowTitle('Calculations')
-        msg.setDetailedText('Holidays factored in are based on client local statutory holidays. \n' +
-                            'The holidays account for are as follows: ' + '\n' + str(holiday_list)[1:-1])
+        msg.setDetailedText('Holidays factored in are based on client-local statutory holidays. \n' +
+                            'The holidays accounted for are as follows: ' + '\n' + str(holiday_list)[1:-1])
         msg.setStandardButtons(QMessageBox.Ok | QMessageBox.Cancel)
         msg.exec_()
 
