@@ -86,16 +86,19 @@ class SLA():
             end = datetime.datetime(self.end_year, self.end_month, self.end_day, self.end_hr, self.end_min)
             delta = end - start
             # TODO: FIX THIS. Current returns Hrs + % mins...
-            return data[self.client]['SEV'][severity] - (delta.total_seconds() / 3600)
+            remaining_sla_hrs = data[self.client]['SEV'][severity] - (delta.total_seconds() / 3600)
+            print(remaining_sla_hrs)
         elif severity == 'severity 3' or severity == 'severity 4':
             ticket_max_time = data[self.client]['SEV'][severity]
-            print(ticket_max_time, (ticket_hours.total_seconds() / 3600))
             remaining_sla_hrs = (ticket_max_time - (ticket_hours.total_seconds() / 3600.0))
-            return remaining_sla_hrs
+        hours, minutes = int(remaining_sla_hrs), str(remaining_sla_hrs-int(remaining_sla_hrs))[1:]
+        minutes = int(round(float(minutes)*60))
+        if remaining_sla_hrs < 0 and hours == 0:
+            minutes = -minutes
+        return hours, minutes
 
+test = SLA(client="AC", st_year=2018, st_month=7, st_day=3, st_hr=16, st_min=30,
+                        end_year=2018, end_month=7, end_day=3, end_hr=17, end_min=45)
 
-# test = SLA(client="AC", st_year=2018, st_month=7, st_day=4, st_hr=9, st_min=0,
-#                         end_year=2018, end_month=7, end_day=4, end_hr=12, end_min=0)
-#
-# hrs = test.calculate_ticket_hrs()
-# print(test.calculate_sla_breach("severity 3", hrs))
+hrs = test.calculate_ticket_hrs()
+print(test.calculate_sla_breach("severity 1", hrs))
