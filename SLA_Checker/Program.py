@@ -97,8 +97,3 @@ class SLA():
             minutes = -minutes
         return hours, minutes
 
-test = SLA(client="AC", st_year=2018, st_month=7, st_day=3, st_hr=16, st_min=30,
-                        end_year=2018, end_month=7, end_day=3, end_hr=17, end_min=45)
-
-hrs = test.calculate_ticket_hrs()
-print(test.calculate_sla_breach("severity 1", hrs))
