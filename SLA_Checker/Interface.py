@@ -55,7 +55,11 @@ class Interface(QWidget):
         ticket_info = SLA(client=client, st_year=st[0], st_month=st[1], st_day=st[2], st_hr=st[3], st_min=st[4],
                          end_year=end[0], end_month=end[1], end_day=end[2], end_hr=end[3], end_min=end[4])
         ticket_hours = ticket_info.calculate_ticket_hrs()
-        sla_check = ticket_info.calculate_sla_breach(sev, ticket_hours)
+        sla_hours, sla_mins = ticket_info.calculate_sla_breach(sev, ticket_hours)
+        if sla_hours < 0 or sla_mins < 0:
+            sla_check = f'SLA breached. Breached by {sla_hours} hrs & {sla_mins} mins.'
+        else:
+            sla_check = f'SLA not breached. {sla_hours} hrs & {sla_mins} mins remaining.'
         # Check for holidays
         start = datetime.date(st[0], st[1], st[3])
         end = datetime.date(end[0], end[1], end[2])
@@ -63,7 +67,7 @@ class Interface(QWidget):
         # Create Pop up window
         msg = QMessageBox()
         msg.setIcon(QMessageBox.Information)
-        msg.setText(str(sla_check))
+        msg.setText(sla_check)
         msg.setWindowTitle('Calculations')
         msg.setDetailedText('Holidays factored in are based on client local statutory holidays. \n' +
                             'The holidays account for are as follows: ' + '\n' + str(holiday_list)[1:-1])
@@ -77,7 +81,7 @@ class Interface(QWidget):
         gridLayout = QGridLayout()
 
         # Labels
-        labels = ['Ticket Start', 'Ticket End', 'Client', 'Severity']
+        labels = ['Ticket Start [mm-dd-yy]', 'Ticket End [mm-dd-yy]', 'Client', 'Severity']
         self.labels = [QLabel(label) for label in labels]
         [label.setFont(QFont("OPEN SANS", 9)) for label in self.labels]
         [gridLayout.addWidget(self.labels[i], i, 0) for i in range(len(self.labels))]
@@ -124,4 +128,3 @@ if __name__ == '__main__':
     app = QApplication(sys.argv)
     window = Interface()
     sys.exit(app.exec_())
- 
