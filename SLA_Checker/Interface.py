@@ -52,16 +52,17 @@ class Interface(QWidget):
         st, end = [], []
         [st.append(int(char)) for char in start_string.split(' ')]
         [end.append(int(char)) for char in end_string.split(' ')]
-        ticket_info = SLA(client=client, st_year=st[0], st_month=st[1], st_day=st[2], st_hr=st[3], st_min=st[4],
+        print(st, '\n', end)
+        ticket_info = SLA(client=client, severity=sev, st_year=st[0], st_month=st[1], st_day=st[2], st_hr=st[3], st_min=st[4],
                          end_year=end[0], end_month=end[1], end_day=end[2], end_hr=end[3], end_min=end[4])
         ticket_hours = ticket_info.calculate_ticket_hrs()
-        sla_hours, sla_mins = ticket_info.calculate_sla_breach(sev, ticket_hours)
+        sla_hours, sla_mins = ticket_info.calculate_sla_breach(ticket_hours)
         if (datetime.datetime(st[0], st[1], st[2], st[3], st[4]) - datetime.datetime(end[0], end[1], end[2], end[3], end[4])).total_seconds() > 1:
             sla_check = f'Check start/end date and time.'
-        elif sla_hours < 0 or sla_mins < 0:
-            sla_check = f'SLA breached. Breached by {sla_hours} hrs & {sla_mins} mins.'
+        if sla_hours < 0 or sla_mins < 0:
+            sla_check = f'SLA BREACHED by {sla_hours} hrs {sla_mins} mins.'
         else:
-            sla_check = f'SLA not breached. {sla_hours} hrs & {sla_mins} mins remaining.'
+            sla_check = f'SLA NOT breached. {sla_hours} hrs {sla_mins} mins remaining in SLA.'
         # Check for holidays
         start = datetime.date(st[0], st[1], st[3])
         end = datetime.date(end[0], end[1], end[2])
