@@ -52,7 +52,7 @@ class Interface(QWidget):
         st, end = [], []
         [st.append(int(char)) for char in start_string.split(' ')]
         [end.append(int(char)) for char in end_string.split(' ')]
-        print(st, '\n', end)
+        # print(st, '\n', end)
         ticket_info = SLA(client=client, severity=sev, st_year=st[0], st_month=st[1], st_day=st[2], st_hr=st[3], st_min=st[4],
                          end_year=end[0], end_month=end[1], end_day=end[2], end_hr=end[3], end_min=end[4])
         ticket_hours = ticket_info.calculate_ticket_hrs()
@@ -62,18 +62,18 @@ class Interface(QWidget):
         if sla_hours < 0 or sla_mins < 0:
             sla_check = f'SLA BREACHED by {sla_hours} hrs {sla_mins} mins.'
         else:
-            sla_check = f'SLA NOT breached. {sla_hours} hrs {sla_mins} mins remaining in SLA.'
+            sla_check = f'SLA not breached.'
         # Check for holidays
         start = datetime.date(st[0], st[1], st[3])
         end = datetime.date(end[0], end[1], end[2])
-        holiday_list = ValidDate().holidaycheck(start, end, prov)
+        # holiday_list = ValidDate().holidaycheck(start, end, prov)
         # Create Pop up window
         msg = QMessageBox()
         msg.setIcon(QMessageBox.Information)
         msg.setText(sla_check)
         msg.setWindowTitle('Calculations')
-        msg.setDetailedText('Holidays factored in are based on client-local statutory holidays. \n' +
-                            'The holidays accounted for are as follows: ' + '\n' + str(holiday_list)[1:-1])
+        # msg.setDetailedText('Holidays factored in are based on client-local statutory holidays. \n' +
+        #                     'The holidays accounted for are as follows: ' + '\n' + str(holiday_list)[1:-1])
         msg.setStandardButtons(QMessageBox.Ok | QMessageBox.Cancel)
         msg.exec_()
 
