@@ -1,6 +1,6 @@
-from PyQt5.QtWidgets import QApplication, QWidget, QDesktopWidget, QComboBox, QPushButton, QGridLayout, QLabel, QSizePolicy, QGroupBox, QVBoxLayout, QDateTimeEdit, QMessageBox
+from PyQt5.QtWidgets import QApplication, QWidget, QDesktopWidget, QComboBox, QPushButton, QGridLayout, QLabel, QSizePolicy, QGroupBox, QVBoxLayout, QDateTimeEdit, QMessageBox, QMainWindow, QCheckBox
 from PyQt5.QtGui import QIcon, QFont
-from PyQt5.QtCore import QDateTime
+from PyQt5.QtCore import QDateTime, Qt
 
 from datetime import date
 import sys, json
@@ -11,9 +11,83 @@ from ValidDate import *
 TODO: Comment code
 '''
 
+
 class popup(QWidget):
     def __init__(self, name):
         super().__init__()
+
+
+class HolidayWindow(QWidget):
+
+    def __init__(self):
+        super().__init__()
+        self.resize(450, 600)
+        self.centre()
+        self.setWindowTitle('Holidays')
+        self.setWindowIcon(QIcon('calculator-icon.png'))
+        self.initUI()
+        vboxLayout = QVBoxLayout()
+        vboxLayout.addWidget(self.groupBox)
+        self.setLayout(vboxLayout)
+        self.show()
+
+    def centre(self):
+        # Centres the window
+        window = self.frameGeometry()
+        centre = QDesktopWidget().availableGeometry().center()
+        window.moveCenter(centre)
+        self.move(window.topLeft())
+
+    def initUI(self):
+        self.groupBox = QGroupBox()
+        gridLayout = QGridLayout()
+
+        text_label = QLabel('Select all statutory and provincial holidays that resulted in a business day turning \n'
+                            'into a non-working day. Check holidays as they apply to the client local province.\n'
+                            'The below displays the corresponding month, applicable prov/territory and holiday name.\n\n'
+                            'Do NOT check if the statutory holiday falls on a Saturday or Sunday as this will skew calculations! ')
+
+        text_label.setAlignment(Qt.AlignCenter)
+        text_label.setFont(QFont("OPEN SANS", 8))
+
+        label_list = ['Jan: All - New Years Day',
+                    'Feb: PE - Islander Day',
+                    'Feb: AB, BC, ON, SK - Family Day',
+                    'Feb: NS, YK - Heritage Day',
+                    'Feb: MB - Louis Riel Day',
+                    'Mar: NL - St. Patricks',
+                    'Mar/Apr: All except QC - Good Friday',
+                    'Apr: QC - Easter Monday',
+                    'Apr: NL - St. Georges Day',
+                    'May: All except NB, NL, NS, PE - Victoria Day',
+                    'Jun: NT -  National Aboriginal',
+                    'Jun: QC - Féte Nationale',
+                    'Jun: NL - Discovery Day',
+                    'Jul: All - Canada Day',
+                    'Jul: NT - Nunavut Day',
+                    'Aug: AB, BC, NB, NU, ON, SK - Civic Holiday',
+                    'Sep: All - Labour Day',
+                    'Oct: All except NB, NL, NS, PE - Thanksgiving',
+                    'Nov: All except NL, NS, ON, QC - Remembrance Day',
+                    'Dec: All - Christmas Day',
+                    'Dec: ON - Boxing Day']
+
+        gridLayout.addWidget(text_label)
+        labels = [QLabel(label) for label in label_list]
+        # [label.setFont(QFont("OPEN SANS", 9)) for label in labels]
+        for n in range(len(labels)):
+            cb = gridLayout.addWidget(QCheckBox(label_list[n]), n+1, 0)
+
+        confirm = QPushButton('Confirm')
+        confirm.setStyleSheet('QPushButton { border-style: outset; border-width: 1px; border-radius: 3px; border-color: black; min-width: 10em; padding: 5px}'
+                             'QPushButton:hover { background-color: rgba(255, 255, 255, 175) }'
+                             'QPushButton:pressed {  background-color: rgba(255, 255, 255, 245) }')
+        gridLayout.addWidget(confirm)
+
+        self.groupBox.setLayout(gridLayout)
+
+
+
 
 class Interface(QWidget):
 
@@ -45,7 +119,6 @@ class Interface(QWidget):
             for key in data[client_combo_box.currentText()]['SEV'].keys():
                 sev_combo_box.addItem(key)
 
-
     def calculate_press(self, start_datetime, end_datetime, client, sev, prov):
         start_string = start_datetime.dateTime().toString('yyyy M d H m')
         end_string = end_datetime.dateTime().toString('yyyy M d H m')
@@ -74,9 +147,15 @@ class Interface(QWidget):
         msg.setWindowTitle('Calculations')
         # msg.setDetailedText('Holidays factored in are based on client-local statutory holidays. \n' +
         #                     'The holidays accounted for are as follows: ' + '\n' + str(holiday_list)[1:-1])
-        msg.setStandardButtons(QMessageBox.Ok | QMessageBox.Cancel)
+        msg.setStandardButtons(QMessageBox.Ok)
         msg.exec_()
 
+    def holiday_press(self):
+        self.holidays = HolidayWindow()
+
+    def openWindow(self):
+        self.window = QMainWindow()
+        self.ui = True
 
     def gridLayoutCreation(self):
 
@@ -84,7 +163,7 @@ class Interface(QWidget):
         gridLayout = QGridLayout()
 
         # Labels
-        labels = ['Ticket Start [mm-dd-yy]', 'Ticket End [mm-dd-yy]', 'Client', 'Severity']
+        labels = ['Ticket Start [mm-dd-yy]', 'Ticket End [mm-dd-yy]', 'Client', 'Severity', 'Statutory Holidays']
         self.labels = [QLabel(label) for label in labels]
         [label.setFont(QFont("OPEN SANS", 9)) for label in self.labels]
         [gridLayout.addWidget(self.labels[i], i, 0) for i in range(len(self.labels))]
@@ -92,6 +171,13 @@ class Interface(QWidget):
         # Buttons
         calculate_button = QPushButton("Calculate")
         calculate_button.setSizePolicy(QSizePolicy.Minimum, QSizePolicy.Fixed)
+        holiday_button = QPushButton("Holidays")
+        holiday_button.setSizePolicy(QSizePolicy.Minimum, QSizePolicy.Fixed)
+        for button in [holiday_button, calculate_button]:
+            button.setStyleSheet('QPushButton { border-style: outset; border-width: 1px; border-radius: 3px; border-color: black; min-width: 10em; padding: 3px}'
+                                 'QPushButton:hover { background-color: rgba(255, 255, 255, 175) }'
+                                 'QPushButton:pressed {  background-color: rgba(255, 255, 255, 245) }')
+
 
         # DateTime
         currentdatetime = QDateTime.currentDateTime()
@@ -116,6 +202,9 @@ class Interface(QWidget):
         # Change sev combo box when client changes
         client_combo_box.currentIndexChanged.connect(lambda: self.repopulateCombo(sev_combo_box, client_combo_box))
         # Calculate on button press
+        # holi_window = self.holiday_press()
+
+        holiday_button.clicked.connect(lambda: self.holiday_press())
         calculate_button.clicked.connect(lambda: self.calculate_press(start_date_edit, end_date_edit, client_combo_box.currentText(), sev_combo_box.currentText(), prov))
 
         # Add to layout
@@ -123,7 +212,8 @@ class Interface(QWidget):
         gridLayout.addWidget(end_date_edit, 1, 2)
         gridLayout.addWidget(client_combo_box,2, 2)
         gridLayout.addWidget(sev_combo_box,3, 2)
-        gridLayout.addWidget(calculate_button, 4, 2)
+        gridLayout.addWidget(holiday_button, 4, 2)
+        gridLayout.addWidget(calculate_button, 5, 2)
 
         self.groupBox.setLayout(gridLayout)
 
