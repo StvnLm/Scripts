@@ -62,15 +62,4 @@ class ValidDate():
     #     return total_hours
 
 
-date1 = datetime.datetime(2018, 7, 1, 8, 0)
-date2 = datetime.datetime(2018, 7, 5, 17, 0)
-x = ValidDate().weekdaylist(date1, date2)
-print(x)
-
-# x=ValidDate().holidaycheck(date1, date2, 'ON')
-# print(x)
-# for day in ValidDate().daterange(start_date=date1, end_date=date2):
-#     ValidDate().weekend_holiday_hours(date1, date2)
-# print(ValidDate().weekend_holiday_hours(date1, date2, 'BC'))
-
 
