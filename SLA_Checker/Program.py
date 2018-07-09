@@ -5,6 +5,8 @@ __status__ = "PRE_PRODUCTION"
 from datetime import datetime, date
 import json
 from ValidDate import *
+from SLA import Interface
+
 '''
 TODO: 
 -implement GUI Interface
@@ -12,6 +14,8 @@ TODO:
 '''
 
 class SLA():
+
+    SLA_holiday_cnt = 0
 
     def __init__(self, client, severity, st_year, st_month, st_day, st_hr, st_min, end_year, end_month, end_day, end_hr, end_min):
         self.st_year = st_year
@@ -39,8 +43,7 @@ class SLA():
             # Check if day lands on Sat, Sun, or holiday; if so - deduct 8 hrs
             weekends = ValidDate().weekendcheck(ticket_start_date, ticket_end_date)
             # holiday_list = ValidDate().holidaycheck(start_date=ticket_start_date, end_date=ticket_end_date, province=data[self.client]["prov"])
-            weekend_holidays = (weekends[0] + weekends[1]) * 8
-            # print(holiday_list)
+            weekend_holidays = (weekends[0] + weekends[1] + SLA.SLA_holiday_cnt) * 8
             ticket_end_time = datetime.datetime(self.end_year, self.end_month, self.end_day, self.end_hr, self.end_min)
             ticket_start_time = datetime.datetime(self.st_year, self.st_month, self.st_day, self.st_hr, self.st_min)
 
@@ -52,26 +55,25 @@ class SLA():
                 client_end_hr = data[self.client]['end']
 
                 start_hr, start_min = self.st_hr, self.st_min
-                if self.st_hr < 9:
-                    start_hr, start_min = 9, 0
-                if self.st_hr > 16:
-                    start_hr, start_min = 17, 0
+                if self.st_hr < data[self.client]['start']:
+                    start_hr, start_min = data[self.client]['start'], 0
+                if self.st_hr > data[self.client]['end'] - 1:
+                    start_hr, start_min = data[self.client]['end'], 0
 
                 first_day_hours = datetime.datetime(self.st_year, self.st_month, self.st_day, client_end_hr) - \
                                   datetime.datetime(self.st_year, self.st_month, self.st_day, start_hr, start_min)
                 full_day_hours = ((ticket_end_date - ticket_start_date).days - 1) * 8.0
 
                 end_hr, end_min = self.end_hr, self.end_min
-                if self.end_hr < 9:
-                    end_hr, end_min = 9, 0
-                if self.end_hr > 16:
-                    end_hr, end_min = 17, 0
+                if self.end_hr < data[self.client]['start']:
+                    end_hr, end_min = data[self.client]['start'], 0
+                if self.end_hr > data[self.client]['end'] - 1:
+                    end_hr, end_min = data[self.client]['end'], 0
 
                 last_day_hours = datetime.datetime(self.end_year, self.end_month, self.end_day, end_hr, end_min) - \
                                  datetime.datetime(self.end_year, self.end_month, self.end_day, client_start_hr)
 
                 total_ticket_hrs = (first_day_hours.total_seconds() / 3600.0) + full_day_hours + (last_day_hours.total_seconds() / 3600.0) - weekend_holidays
-                print('first day total', first_day_hours.total_seconds() / 3600.0 , 'full day total', full_day_hours , 'last day total',  (last_day_hours.total_seconds() / 3600.0) , 'weekend', weekend_holidays)
         return total_ticket_hrs
 
 
@@ -93,12 +95,4 @@ class SLA():
         if remaining_sla_hrs < 0 and hours == 0:
             minutes = -minutes
         return hours, minutes
-
-test = SLA(client="AC", severity='severity 3', st_year=2018, st_month=7, st_day=4, st_hr=9, st_min=0,
-                                               end_year=2018, end_month=7, end_day=5, end_hr=17, end_min=0)
-
-
-hrs = test.calculate_ticket_hrs()
-print(hrs)
-print(test.calculate_sla_breach(hrs))
 
