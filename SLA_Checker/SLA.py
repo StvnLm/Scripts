@@ -9,6 +9,11 @@ from Program import *
 from ValidDate import *
 import Program
 
+'''
+TODO: Comment code
+'''
+
+
 class popup(QWidget):
     def __init__(self, name):
         super().__init__()
@@ -52,10 +57,10 @@ class HolidayWindow(QWidget):
         self.groupBox = QGroupBox()
         gridLayout = QGridLayout()
 
-        text_label = QLabel('Select all statutory and provincial holidays that resulted in a business day turning \n'
-                            'into a non-working day. Check holidays as they apply to the client local province.\n'
+        text_label = QLabel('Select all statutory and provincial holidays that resulted in a business day turning into a\n'
+                            'non-working day for sev 3 & 4. Check holidays as they apply to the client local province.\n'
                             'The below displays the corresponding month, applicable prov/territory and holiday name.\n\n'
-                            'Do NOT check if the statutory holiday occurs on a Saturday or Sunday as this will skew calculations! ')
+                            'Do NOT check if the statutory holiday occurs on a Saturday or Sunday as this will skew calculations!\n')
 
         text_label.setAlignment(Qt.AlignCenter)
         text_label.setFont(QFont("OPEN SANS", 8))
@@ -156,9 +161,9 @@ class Interface(QWidget):
                          end_year=end[0], end_month=end[1], end_day=end[2], end_hr=end[3], end_min=end[4])
         ticket_hours = ticket_info.calculate_ticket_hrs()
         sla_hours, sla_mins = ticket_info.calculate_sla_breach(ticket_hours)
-        if (datetime.datetime(st[0], st[1], st[2], st[3], st[4]) - datetime.datetime(end[0], end[1], end[2], end[3], end[4])).total_seconds() > 1:
+        if (datetime.datetime(st[0], st[1], st[2], st[3], st[4]) - datetime.datetime(end[0], end[1], end[2], end[3], end[4])).total_seconds() > 0:
             sla_check = f'Check start/end date and time.'
-        if sla_hours < 0 or sla_mins < 0:
+        elif sla_hours < 0 or sla_mins < 0:
             sla_check = f'SLA BREACHED by {sla_hours} hrs {sla_mins} mins.'
         else:
             sla_check = f'SLA not breached.'
@@ -209,6 +214,8 @@ class Interface(QWidget):
         currentdatetime = QDateTime.currentDateTime()
         start_date_edit = QDateTimeEdit()
         end_date_edit = QDateTimeEdit()
+        start_date_edit.setCalendarPopup(True)
+        end_date_edit.setCalendarPopup(True)
         start_date_edit.setDateTime(currentdatetime)
         end_date_edit.setDateTime(currentdatetime)
 
