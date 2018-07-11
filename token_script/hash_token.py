@@ -21,7 +21,6 @@ def get_hash(email, out_queue):
     hash = hashlib.md5()
     hash.update(email.encode('utf-8'))
     out_queue.put(hash.hexdigest())
-    return hash.hexdigest()
 
 
 def process_events(events):
