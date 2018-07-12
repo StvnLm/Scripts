@@ -1,0 +1,17 @@
+import glob
+import re
+
+filepath = (glob.glob('/opt/arcsight/smartconnector*/*/current/user/agent/agent.properties'))
+
+agentIdList =\
+['XXXXXXXXXXXXXXXXXXXXXXXX',
+]
+
+for agentFile in filepath:
+    connectorRegex = re.compile(r'/opt/arcsight/smartconnectors?/(.+)/current')
+    connectorName = re.search(connectorRegex, agentFile)
+    with open(agentFile) as f:
+        content = f.read()
+        for agentId in agentIdList:
+            if agentId in content:
+                print agentId, connectorName.group(1)
