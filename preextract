@@ -1,0 +1,80 @@
+#!/usr/bin/python
+"""
+This is a script to extract B737 and B787 logs from a single ZIP file.
+TODO: Add logging
+"""
+
+import os, subprocess
+import tarfile, zipfile, bz2, glob
+from datetime import date
+
+
+# Unzip boths tar and zip files
+def Unzip(src_file_path, dst_file_path):
+    if tarfile.is_tarfile(src_file_path):
+        tar = tarfile.open(src_file_path)
+        tar.open(src_file_path).extractall(path=dst_file_path)
+        tar.close()
+    if zipfile.is_zipfile(src_file_path):
+        zip = zipfile.ZipFile(file=src_file_path, mode='r')
+        zip.extractall(path=dst_file_path)
+        zip.close()
+
+
+# Decompress BZ2 files; this function is not used at the moment due to change in scope of script
+def Decompress(src_file_path, dst_file_path):
+    for file in os.listdir(src_file_path):
+        if 'bz2' in file:
+            with open(src_file_path + file, 'r') as source:
+                bz2_dst_file_path = dst_file_path + file[:-4]
+                with open(bz2_dst_file_path, 'w+') as dest:
+                    dest.write(bz2.decompress(source.read()))
+
+
+# Del old archives, based on the number of days passed.
+def DelOldArchives(directory, days):
+    current_date = date.today()
+    zip_dir = glob.glob(directory + "/*")
+    for zip in zip_dir:
+        created = os.stat(zip).st_atime
+        datestamp = date.fromtimestamp(created)
+        if (current_date - datestamp).days > days:
+            try:
+                os.remove(zip)
+            except:
+                with open(os.devnull, 'w') as FNULL:
+                    subprocess.call(["rm", "-rf", zip], stdin=FNULL, stdout=FNULL, stderr=FNULL)
+                    # import shutil
+                    # shutil.rmtree(zip, ignore_errors=True)
+
+
+if __name__ == '__main__':
+    # Create directories if they do not exist
+    # Directory where client will send files: /opt/arcsight/incoming/B737_B787/zip/
+    # Directory script will extract zip to "/opt/arcsight/incoming/B737_B787/unzip/"
+    dirs = ["/opt/arcsight/incoming/B737_B787/", "/opt/arcsight/incoming/B737_B787/zip/", "/opt/arcsight/incoming/B737_B787/unzip/",
+            "/opt/arcsight/incoming/B737_B787/archive/"]
+    for dir in dirs:
+        if not os.path.exists(dir):
+            os.makedirs(dir)
+
+    # Extract files into B737 and B787 folders. Move ZIP to archive directory
+    for file in os.listdir("/opt/arcsight/incoming/B737_B787/zip/"):
+        # If file is ZIP or TAR, extract to unzip directory
+        if ".zip" in file or ".tar" in file:
+            zip_file_path = "/opt/arcsight/incoming/B737_B787/zip/" + file
+            Unzip(zip_file_path, "/opt/arcsight/incoming/B737_B787/unzip/")
+            subprocess.call(["mv", zip_file_path, "/opt/arcsight/incoming/B737_B787/archive/"])
+
+    # For each directory in unzip, move to corresponding AC log directory
+    b737_logs = glob.glob("/opt/arcsight/incoming/B737_B787/unzip/*/B737/*")
+    b787_logs = glob.glob("/opt/arcsight/incoming/B737_B787/unzip/*/B787/*")
+    with open(os.devnull, 'w') as FNULL:
+        [subprocess.call(["mv", src_737_file, "/opt/arcsight/incoming/B737/"], stdin=FNULL, stdout=FNULL, stderr=FNULL)
+         for src_737_file in b737_logs if '.zip' in src_737_file]
+        [subprocess.call(["mv", src_787_file, "/opt/arcsight/incoming/B787/"], stdin=FNULL, stdout=FNULL, stderr=FNULL)
+         for src_787_file in b787_logs if '.zip' in src_787_file]
+
+    # Delete old archives after 7 days
+    DelOldArchives("/opt/arcsight/incoming/B737_B787/archive/", 7)
+
