@@ -1,0 +1,20 @@
+
+# Directory of original log file (example: /opt/arcsight/incoming/acSCA.log)
+original_file = ""
+# Directory of new log file (example: /opt/arcsight/incoming/acSCA_NEW.log)
+newly_generated_file = ""
+
+with open(original_file, "r") as template_file:
+    with open(newly_generated_file, "r") as new_file:
+        # Skip the header of the LOG files
+        for n in range(12):
+            next(template_file)
+            next(new_file)
+        template_lines, new_lines = template_file.readlines(), new_file.readlines()
+        diff_filereader = open("acSCA_diff.log", "w+")
+        [diff_filereader.write(line) for line in new_lines if line not in template_lines]
+        diff_filereader.close()
+        diff_filereader2 = open("acSCA_diff.log", "r")
+
+
+
