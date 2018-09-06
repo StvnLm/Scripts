@@ -27,7 +27,6 @@ session.auth = (username, password)
 base_url = "https://photoai.lotlinx.com"
 
 
-
 # 1) Submit Requests
 def PostRequest(dealerId, vehicleId, imageId, imageUrl):
     endpoint = base_url + "/images/optimize"
@@ -66,9 +65,9 @@ def GetResponse(token):
 
 if __name__ == '__main__':
     # 1) POST
-    # post = PostRequest(dealerId=9876655, vehicleId=987676, imageId=76554, imageUrl="https://img.lotlinx.com/vdn/7416/jeep_wrangler%20unlimited_2014_1C4BJWFG3EL326863_7416_5_339187295.jpg")
-    # post = post.json()
-    # token = post["data"][0]["token"]
+    post = PostRequest(dealerId=9876655, vehicleId=987676, imageId=76554, imageUrl="https://img.lotlinx.com/vdn/7416/jeep_wrangler%20unlimited_2014_1C4BJWFG3EL326863_7416_5_339187295.jpg")
+    post = post.json()
+    token = post["data"][0]["token"]
     token="51uA18oltVr6S0SdY2EDZhczppOrC4LALCTSyDu8cCslvYVHQLYmwu6hgz2kHTua"
 
     # 2) GET /w Token
