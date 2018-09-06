@@ -1,0 +1,24 @@
+import json
+import requests
+from requests.auth import HTTPBasicAuth
+
+base_url = "https://photoai.lotlinx.com"
+username = "testaccount8"
+password = "79b41e211568"
+
+def Post(dealerId, vehicleId, imageId, imageUrl):
+    endpoint = base_url + "/images/optimize"
+    session = requests.Session()
+    session.auth = (username, password)
+    data = [{
+    "dealerId": dealerId,
+    "vehicles": [{"id": vehicleId, "images": [{"imageId": imageId, "imageUrl": imageUrl}]}]
+    }]
+    resp = session.post(url=endpoint, json=data)
+    resp.raise_for_status()
+    return resp
+
+
+r = Post(dealerId=9876655, vehicleId=987676, imageId=76554, imageUrl="https://img.lotlinx.com/vdn/7416/jeep_wrangler%20unlimited_2014_1C4BJWFG3EL326863_7416_5_339187295.jpg")
+print(r.json())
+
