@@ -21,12 +21,11 @@ logger.addHandler(filehandle)
 # API Authentication credentials
 username = credentials.username
 password = credentials.password
-
-base_url = "https://photoai.lotlinx.com"
-username = "testaccount8"
-password = "79b41e211568"
 session = requests.Session()
 session.auth = (username, password)
+
+base_url = "https://photoai.lotlinx.com"
+
 
 
 # 1) Submit Requests
