@@ -7,8 +7,16 @@ TODO:
 """
 
 import requests
-import pprint
+import logging
+from logging import FileHandler
 
+# Init Logging
+logger = logging.getLogger("LotLinxAPI")
+filehandle = logging.FileHandler("LogLinx.log")
+format = logging.Formatter("%(asctime)")
+logger.addHandler(filehandle)
+
+# API Authentication credentials
 base_url = "https://photoai.lotlinx.com"
 username = "testaccount8"
 password = "79b41e211568"
