@@ -7,12 +7,12 @@ TODO:
 - Provide a ZIP/archive of the program code, logged output and resulting images
   downloaded from the API results.
 """
-
 import credentials #credential.py to store api user/pass
 import requests
 import logging
 import time
 import pprint
+
 
 # API Authentication credentials
 username = credentials.username
