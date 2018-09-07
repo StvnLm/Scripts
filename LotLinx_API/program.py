@@ -93,8 +93,7 @@ def GetResponse(token):
 
 
 if __name__ == '__main__':
-
-
+    """
     tokens = []
     with open("ImageLinks.txt", "r") as f:
         for line in f:
@@ -125,14 +124,12 @@ if __name__ == '__main__':
             else:
                 print('sleeping for 30')
                 time.sleep(30)
-
+    """
     # 2b) GET /w status & startdate
-    getReq = GetRequest("completed", "2018-09-06T22:00:00")
-    getReq = getReq.json()
-    # print(getReq)
+    getReq = GetRequest("queued", "2018-09-06T22:00:00")
+    print(getReq.json())
 
     # 3) GET LOAD RESPONSE
-    for succToken in successfulTokens:
-        load = GetResponse(succToken)
-        print(load.json())
+    # for succToken in successfulTokens:
+    #     print(GetResponse(succToken))
 
