@@ -12,6 +12,7 @@ import credentials #credential.py to store api user/pass
 import requests
 import logging
 import time
+import pprint
 
 # API Authentication credentials
 username = credentials.username
@@ -93,43 +94,45 @@ def GetResponse(token):
 
 
 if __name__ == '__main__':
-    """
+
+    # Get tokens for all images in ImageLinks.txt
     tokens = []
     with open("ImageLinks.txt", "r") as f:
         for line in f:
+            # Strip URL otherwise API will not function properly
             line = line.replace("\n", "")
             # 1) POST request for images and tokens
             post = PostRequest(dealerId=9876655, vehicleId=987636, imageId=76554,
                                imageUrl=line)
-            # Get tokens for all image links
-            tokens.append(post.json()["data"][0]["token"])
-
+            try:
+                tokens.append(post.json()["data"][0]["token"])
+            except AttributeError:
+                logging.error("Could not find server; check network connection.")
+    
     # 2) GET status /w token
+    # Not all image tokens return a successful reply. Generally only 2 or 3 are successful! Successful tokens are stored
+    # to be used for retrieving the final image while failed tokens are only logged.
     successfulTokens = []
     for token in tokens:
-        getStatus = GetStatus(token)
-        print(token, type(token))
         while True:
-            print(token, type(token), getStatus.json()["data"][0]["status"])
             getStatus = GetStatus(token)
-            if getStatus.json()["data"][0]["status"] == "completed":
+            if getStatus.json()["data"][0]["status"] == "complete":
                 successfulTokens.append(token)
-                print('successful!!!!!!', token)
                 break
             elif getStatus.json()["data"][0]["status"] == "failed":
-                print(type(token))
-                print(f"failed token {token}")
-                logging.error(f"{token} resulted in failed status")
+                logging.error(f"FAILED token: {token} resulted in failed return status")
                 break
             else:
-                print('sleeping for 30')
-                time.sleep(30)
-    """
+                # Wait 2 minutes to poll API again
+                print("Sleeping for 120 seconds")
+                time.sleep(120)
+
     # 2b) GET /w status & startdate
     getReq = GetRequest("queued", "2018-09-06T22:00:00")
-    print(getReq.json())
 
     # 3) GET LOAD RESPONSE
-    # for succToken in successfulTokens:
-    #     print(GetResponse(succToken))
-
+    for succToken in successfulTokens:
+        modified_url = GetResponse(succToken).json()["data"][0]["vehicles"][0]["images"][0]["modifiedUrl"]
+        # print(GetResponse(succToken).json()["data"][0]["vehicles"][0]["images"][0]["modifiedUrl"])
+        logging.info(f"SUCCESSFUL modified image: {modified_url}")
+        print("Run complete for: " + successfulTokens)
