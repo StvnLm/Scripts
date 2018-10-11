@@ -1,0 +1,37 @@
+import tkinter
+from tkinter import Tk
+import pyperclip
+import pyautogui
+from pynput import keyboard
+
+def on_press(key):
+    try:
+        print('alphanumeric key {0} pressed'.format(
+            key.char))
+        if key.char == '`':
+            clip = Tk()
+            content = clip.clipboard_get()
+            byte_cont = content.encode()
+            x = byte_cont.split(b'\n')
+            for n in x:
+                splice = n.decode('utf-8')
+                pyperclip.copy(splice)
+                pyautogui.hotkey('ctrl', 'v')
+                pyautogui.press('enter')
+    except AttributeError:
+        print('special key {0} pressed'.format(
+            key))
+
+def on_release(key):
+    print('{0} released'.format(
+        key))
+    if key == keyboard.Key.esc:
+        # Stop listener
+        return False
+
+# Collect events until released
+with keyboard.Listener(
+        on_press=on_press,
+        on_release=on_release) as listener:
+    listener.join()
+
