@@ -1,6 +1,5 @@
 import tkinter
 from tkinter import Tk
-import pyperclip
 import pyautogui
 from pynput import keyboard
 
@@ -15,9 +14,9 @@ def on_press(key):
             x = byte_cont.split(b'\n')
             for n in x:
                 splice = n.decode('utf-8')
-                pyperclip.copy(splice)
-                pyautogui.hotkey('ctrl', 'v')
                 pyautogui.press('enter')
+                # pyperclip.copy(splice)
+                pyautogui.typewrite(splice)
     except AttributeError:
         print('special key {0} pressed'.format(
             key))
@@ -34,4 +33,5 @@ with keyboard.Listener(
         on_press=on_press,
         on_release=on_release) as listener:
     listener.join()
+
 
