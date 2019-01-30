@@ -1,0 +1,6 @@
+{
+    "client_domain": "https://idcs- !!DOMAIN IDENTIFIER!! .identity.oraclecloud.com",
+    "username": "CLIENT USERNAME",
+    "password": "CLIENT PASSWORD",
+    "queryFormatted": "eventId eq \"sso.session.create.success\" or eventId eq \"sso.authentication.failure\" and timestamp ge \"startYear-startMonth-startDayTstartHour:startMinute:startSecond.000Z\" and timestamp le \"endYear-endMonth-endDayTendHour:endMinute:endSecond.000Z\""
+}
