@@ -83,6 +83,7 @@ if __name__ == '__main__':
                 start_time = datetime.strptime(timetracker.read(),"%Y-%m-%d %H:%M:%S.%f")
         else:
             start_time = datetime.now() - timedelta(hours=4)
+        
         end_time = datetime.now()
 
         #Update timetracker file
@@ -114,9 +115,6 @@ if __name__ == '__main__':
 
         # Grab log from REST API client
         logs = PCID(data["client_domain"], data["username"], data["password"]).GetLogs(parameters)
-
-#        with open(f"logfolder/{start_time.strftime('%Y-%m-%#j_%H-%M-%S_PCID.json')}", "w+") as filewrite:
-#            json.dump(logs, filewrite, indent=4)
 
         from pandas.io.json import json_normalize
         log = json_normalize(logs['Resources'])
