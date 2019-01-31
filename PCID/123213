@@ -1,0 +1,128 @@
+import json
+import requests
+from datetime import datetime, timedelta
+from urllib.parse import urlencode, quote
+from fnmatch import *
+import os
+import csv
+
+
+class PCID(object):
+
+    def __init__(self, baseurl, username, password):
+        """"
+        This class is used to work with Oracle Identity Cloud Service (Oracle IDCS)
+        """
+
+        self.baseurl = baseurl
+        self.username = username
+        self.password = password
+
+    def GetToken(self) -> str:
+        """
+        Retrieve authorization token
+        :return: Bearer authorization token
+        """
+
+        token_url = f"{self.baseurl}/oauth2/v1/token"
+
+        # Headers of GET request
+        headers = {
+            'Content-Type': 'application/x-www-form-urlencoded'
+        }
+
+        # Body of GET request
+        data = {
+            "grant_type": "client_credentials",
+            "scope": "urn:opc:idm:__myscopes__",
+        }
+
+        # Create session with username and password
+        session = requests.Session()
+        session.auth = (self.username, self.password)
+        # submit POST request with header and body
+        response = session.post(url=token_url, headers=headers, data=data)
+        # Get the TOKEN from the JSON response
+        return json.loads(response.text)['access_token']
+
+    def GetLogs(self, filter) -> str:
+        """
+        Retrieve logs using authorization token
+        :return: logs in JSON format
+        """
+
+        url = f"{self.baseurl}/admin/v1/AuditEvents?{filter}"
+        token = PCID(self.baseurl, self.username, self.password).GetToken()
+
+        headers = {
+            "Authorization": f"Bearer {token}",
+            "Content-Type": "application/json"
+        }
+
+        response = requests.get(url=url, headers=headers)
+        return json.loads(response.text)
+
+    def jsonToCsv(self, data, filename):
+        columns = [x for row in input for x in data.keys()]
+        columns = list(set(columns))
+
+        with open(filename, 'r+') as out_file:
+            csv_w = csv.writer(out_file)
+            csv_w.writerow(columns)
+
+            for i_r in input:
+                csv_w.writerow(map(lambda x: i_r.get(x, ""), columns))
+
+
+if __name__ == '__main__':
+    config_file = "Config.json"
+    # Open up the config file to use the configuration parameters
+    with open(config_file, "r") as file:
+        data = json.load(file)
+
+        # Generate a start and date time to be used as parameters for the query. Set for 5 minute gaps.
+
+        # Create time tracker file if it dosent exist
+        if os.path.isfile("./timetracker.txt") == False:
+            open("timetracker.txt", "a").close()
+
+        if os.stat("timetracker.txt").st_size != 0:
+            with open("timetracker.txt", "r+") as timetracker:
+                start_time = datetime.strptime(timetracker.read(), "%Y-%m-%d %H:%M:%S.%f")
+        else:
+            start_time = datetime.now() - timedelta(hours=4)
+
+        end_time = datetime.now()
+
+        # Update timetracker file
+        f = open("timetracker.txt", "w+")
+        f.write(str(end_time))
+        f.close()
+
+        filter_formatted = data["queryFormatted"]
+
+        time_list = {
+            "startYear": start_time.strftime('%Y'),
+            "startMonth": start_time.strftime('%m'),
+            "startDay": start_time.strftime('%d'),
+            "startHour": start_time.strftime('%H'),
+            "startMinute": start_time.strftime('%M'),
+            "startSecond": start_time.strftime('%S'),
+            "endYear": end_time.strftime('%Y'),
+            "endMonth": end_time.strftime('%m'),
+            "endDay": end_time.strftime('%d'),
+            "endHour": end_time.strftime('%H'),
+            "endMinute": end_time.strftime('%M'),
+            "endSecond": end_time.strftime('%S')}
+
+        # Insert the generated time values into the query string
+        for key in time_list.keys():
+            filter_formatted = filter_formatted.replace(key, str(time_list[key]))
+        # Encode the query string into proper format (e.g. replace whitespace with %20)
+        parameters = urlencode({"filter": filter_formatted}, quote_via=quote) + "&count=1000"
+
+        # Grab log from REST API client
+        logs = PCID(data["client_domain"], data["username"], data["password"]).GetLogs(parameters)
+
+
+        # log.to_csv(f"logfolder/{start_time.strftime('%Y-%m-%#j_%H-%M-%S_PCID.csv')}")
