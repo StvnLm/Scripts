@@ -11,7 +11,7 @@ retention_date_epoch = int(retention_date.timestamp())
 hcp_user = "USERINBASE64=="
 hcp_pass = "SHAOFPASSWORD"
 token = f"HCP {hcp_user}:{hcp_pass}"
-url = "https://pcf-logs.test.krhcp02.ngco.com/rest/pcb_lr_inactivearchives/"
+url = "HCP REST URI"
 retention_url = f"?retention={retention_date_epoch}"
 #endpoint2 = "pcf-logs.test.krhcp02.ngco.com"
 headers = {
